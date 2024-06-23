@@ -28,7 +28,15 @@
         </div>
         <div class="right-side">
             <h3>Suggestions</h3>
-            <!-- Add suggestions content here -->
+            <ul>
+                {% if similar_words %}
+                    {% for suggestion in similar_words %}
+                        <li>{{ suggestion['Word'] }} (Similarity: {{ suggestion['Similarity'] }})</li>
+                    {% endfor %}
+                {% else %}
+                    <li>No suggestions available</li>
+                {% endif %}
+            </ul>
         </div>
     </div>
     <div class="container">

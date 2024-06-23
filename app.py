@@ -5,6 +5,10 @@ from tensorflow.keras.models import model_from_json
 from tensorflow.keras.preprocessing import image
 import numpy as np
 from spellchecker import SpellChecker
+import re
+from collections import Counter
+import pandas as pd
+from fuzzywuzzy import fuzz
 
 app = Flask(__name__)
 camera = cv2.VideoCapture(0)
@@ -25,6 +29,23 @@ loaded_model_json = json_file.read()
 json_file.close()
 loaded_model = model_from_json(loaded_model_json)
 loaded_model.load_weights("model-bw.h5")
+
+words = []
+
+with open('autocorrect book.txt', 'r', encoding='utf-8') as f:
+    data = f.read().lower()
+    words = re.findall('\w+', data)
+    words += words
+
+V = set(words)
+words_freq_dict = Counter(words)
+
+Total = sum(words_freq_dict.values())
+
+probs = {}
+
+for k in words_freq_dict.keys():
+    probs[k] = words_freq_dict[k] / Total
 
 def function(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -88,7 +109,9 @@ def predictions():
 
         for ele in l:
             str1 += ele
-        return render_template("index.html", pred=str1, predicted_output=autocorrect_text(str1), voice_gender=voice_gender)
+
+
+        return render_template("index.html", pred=str1, predicted_output=autocorrect_text(str1), voice_gender=voice_gender,similar_words=get_similar(autocorrect_text(str1)))
 
 @app.route('/stop', methods=['POST'])
 def stopping():
@@ -128,6 +151,26 @@ def autocorrect_text(text):
     corrected_words = [spell.correction(word) for word in words]
     corrected_text = ' '.join(corrected_words)
     return corrected_text
+
+def get_similar(keyword, top_n=5):
+    if not keyword:
+        return []
+
+    similarities = []
+    for v in words_freq_dict.keys():
+        if keyword and v:
+            similarity = fuzz.ratio(keyword, v) / 100.0  # Convert ratio to a fraction
+        else:
+            similarity = 0
+        similarities.append(similarity)
+
+    df = pd.DataFrame.from_dict(probs, orient='index').reset_index()
+    df.columns = ['Word', 'Prob']
+    df['Similarity'] = similarities
+    suggestions = df.sort_values(['Similarity', 'Prob'], ascending=False)[['Word', 'Similarity']]
+    suggestions_list = suggestions.head(top_n).to_dict('records')  # Convert DataFrame to list of dictionaries
+    return suggestions_list
+
 
 if __name__ == "__main__":
     app.run(debug=True)
