@@ -4,12 +4,21 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h2 class="header">Sign Language to Speech Converter</h2>
+    <h2 class="header">GestureVoice</h2>
     <div class="main-container">
         <div class="left-side">
             <div class="result">
                 <p>Result : {{ pred }}</p>
                 <p>Autocorrected : {{ predicted_output }}</p>
+            </div>
+            <div class="language-options">
+                <h3>Select Language:</h3>
+                <ul>
+                    <li><a href="/">English</a></li>
+                    <li><a href="/">Telugu</a></li>
+                    <li><a href="/">Hindi</a></li>
+                    <!-- Add more languages as needed -->
+                </ul>
             </div>
         </div>
         <div class="video-container">

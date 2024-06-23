@@ -82,6 +82,9 @@ ul li {
     border-radius: 5px;  /* Optional: Add border-radius for rounded corners */
     background-color: #f9f9f9; /* Optional: Add background color */
 }
+li:hover{
+    pointer:cursor;
+}
 
 .result {
     text-align: center;
