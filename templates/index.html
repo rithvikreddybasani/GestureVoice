@@ -1,23 +1,49 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <link rel="stylesheet" href={{ url_for('static', filename='css/style.css') }}>
-  </head>
-  <body>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
     <h2 class="header">Sign Language to Speech Converter</h2>
-    <div class="video">
-        <img src="{{ url_for('video') }}" width="50%">
+    <div class="main-container">
+        <div class="left-side">
+            <div class="result">
+                <p>Result : {{ pred }}</p>
+                <p>Autocorrected : {{ predicted_output }}</p>
+            </div>
+        </div>
+        <div class="video-container">
+            <div class="video">
+                <img src="{{ url_for('video') }}" width="100%">
+            </div>
+            <div class="voice-cover">
+                <form id="voice-form" action="/set_voice" method="post">
+                    <label for="voice">Voice Cover:</label>
+                    <select name="voice" id="voice" onchange="submitVoiceForm()" class="random">
+                        <option value="Male" {% if voice_gender == 'Male' %}selected{% endif %}>Male</option>
+                        <option value="Female" {% if voice_gender == 'Female' %}selected{% endif %}>Female</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+        <div class="right-side">
+            <h3>Suggestions</h3>
+            <!-- Add suggestions content here -->
+        </div>
     </div>
     <div class="container">
-    <form action='/predict' method='post'>
-    <button type="submit" name="start" value="start" class="button1" >Start</button>
-  </form>
-  <form action='/stop' method='post'>
-    <button type="submit" name="stop" value="stop" class="button2" >Stop</button>
-  </form>
-  </div>
-  <div class="result">   
-    <p>Result is: {{ pred }}</p>
-</div>
-  
-  </body>
+        <form action='/predict' method='post'>
+            <button type="submit" name="start" value="start" class="button1">Start</button>
+        </form>
+        <form action='/stop' method='post'>
+            <button type="submit" name="stop" value="stop" class="button2">Stop</button>
+        </form>
+    </div>
+
+    <script>
+        function submitVoiceForm() {
+            document.getElementById('voice-form').submit();
+        }
+    </script>
+</body>
 </html>
