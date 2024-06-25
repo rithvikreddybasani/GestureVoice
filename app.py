@@ -76,7 +76,7 @@ def generate_frames():
 
 l = []
 str1 = ""
-voice_gender = "Male"
+voice_gender = "Female"
 
 @app.route('/set_voice', methods=['POST'])
 def set_voice():
