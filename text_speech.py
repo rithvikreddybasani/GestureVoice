@@ -1,27 +1,55 @@
 import pyttsx3
+from googletrans import Translator
+from gtts import gTTS
+import os
+import pygame
+import time
+import tempfile
 
 
-def text_to_speech(text, gender):
-    """
-    Function to convert text to speech
-    :param text: text
-    :param gender: gender
-    :return: None
-    """
-    voice_dict = {'Male': 0, 'Female': 1}
-    code = voice_dict[gender]
+def text_to_speech(text, gender='Male', language='en'):
+    if language != 'en':
+        translator = Translator()
+        trans = translator.translate(text, src='en', dest=language)
+        text = trans.text
 
-    engine = pyttsx3.init()
 
-    # Setting up voice rate
-    engine.setProperty('rate', 125)
+        tts = gTTS(text=text, lang=language)
 
-    # Setting up volume level  between 0 and 1
-    engine.setProperty('volume', 0.8)
 
-    # Change voices: 0 for male and 1 for female
-    voices = engine.getProperty('voices')
-    engine.setProperty('voice', voices[code].id)
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as temp_audio_file:
+            temp_audio_path = temp_audio_file.name
 
-    engine.say(text)
-    engine.runAndWait()
+        tts.save(temp_audio_path)
+        pygame.mixer.init()
+        pygame.mixer.music.load(temp_audio_path)
+        pygame.mixer.music.play()
+
+        while pygame.mixer.music.get_busy():
+            time.sleep(1)
+
+
+        pygame.mixer.music.stop()
+        pygame.mixer.quit()
+
+
+        os.remove(temp_audio_path)
+    else:
+
+        voice_dict = {'Male': 0, 'Female': 1}
+        code = voice_dict[gender]
+
+        engine = pyttsx3.init()
+        engine.setProperty('rate', 125)
+
+
+        engine.setProperty('volume', 0.8)
+
+        voices = engine.getProperty('voices')
+        engine.setProperty('voice', voices[code].id)
+
+        engine.say(text)
+        engine.runAndWait()
+
+
+
