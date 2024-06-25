@@ -29,8 +29,8 @@
                 <form id="voice-form" action="/set_voice" method="post">
                     <label for="voice">Voice Cover:</label>
                     <select name="voice" id="voice" onchange="submitVoiceForm()" class="random">
-                        <option value="Male" {% if voice_gender == 'Male' %}selected{% endif %}>Male</option>
                         <option value="Female" {% if voice_gender == 'Female' %}selected{% endif %}>Female</option>
+                        <option value="Male" {% if voice_gender == 'Male' %}selected{% endif %}>Male</option>
                     </select>
                 </form>
             </div>
