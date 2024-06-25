@@ -47,12 +47,14 @@ probs = {}
 for k in words_freq_dict.keys():
     probs[k] = words_freq_dict[k] / Total
 
+
 def function(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (5, 5), 1)
     th3 = cv2.adaptiveThreshold(blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
     ret, res = cv2.threshold(th3, 70, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
     return res
+
 
 def generate_frames():
     while True:
@@ -74,15 +76,26 @@ def generate_frames():
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
+
 l = []
 str1 = ""
 voice_gender = "Female"
+language = "en"
+
 
 @app.route('/set_voice', methods=['POST'])
 def set_voice():
     global voice_gender
     voice_gender = request.form['voice']
     return redirect(url_for('index'))
+
+
+@app.route('/set_language', methods=['POST'])
+def set_language():
+    global language
+    language = request.form['language']
+    return redirect(url_for('index'))
+
 
 @app.route('/predict', methods=['POST'])
 def predictions():
@@ -105,18 +118,18 @@ def predictions():
         a = d[p_test]
         l.append(a)
         str1 = ""
-        print(l)
 
         for ele in l:
             str1 += ele
 
+        return render_template("index.html", pred=str1, predicted_output=autocorrect_text(str1),
+                               voice_gender=voice_gender, similar_words=get_similar(autocorrect_text(str1)))
 
-        return render_template("index.html", pred=str1, predicted_output=autocorrect_text(str1), voice_gender=voice_gender,similar_words=get_similar(autocorrect_text(str1)))
 
 @app.route('/stop', methods=['POST'])
 def stopping():
     global voice_gender
-    text_to_speech('Predicting the output', voice_gender)
+    text_to_speech('Predicting the output', voice_gender, 'te')
     while True:
         success, frame = camera.read()
         if not success:
@@ -132,18 +145,21 @@ def stopping():
             str1 = ""
             for ele in l:
                 str1 += ele
-            text_to_speech(autocorrect_text(str1), voice_gender)
+            text_to_speech(autocorrect_text(str1), voice_gender, language)
             l.clear()
             return render_template("index.html", pred=str1, voice_gender=voice_gender)
 
+
 @app.route('/')
 def index():
-    text_to_speech('Hi there please show the hand gesture in the provided space', gender=voice_gender)
-    return render_template('index.html', voice_gender=voice_gender)
+    text_to_speech('Hi there please show the hand gesture in the provided space', voice_gender, language)
+    return render_template('index.html', voice_gender=voice_gender, language=language)
+
 
 @app.route('/video')
 def video():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 def autocorrect_text(text):
     spell = SpellChecker()
@@ -151,6 +167,7 @@ def autocorrect_text(text):
     corrected_words = [spell.correction(word) for word in words]
     corrected_text = ' '.join(corrected_words)
     return corrected_text
+
 
 def get_similar(keyword, top_n=5):
     if not keyword:
