@@ -9,9 +9,5 @@ pyttsx3
 googletrans
 gtts
 pygame
-os
-collections 
-time
-tempfile
 setuptools
 wheel
