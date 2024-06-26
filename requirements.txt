@@ -13,3 +13,5 @@ os
 collections 
 time
 tempfile
+setuptools
+wheel
