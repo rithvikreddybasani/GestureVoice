@@ -9,6 +9,7 @@ import tempfile
 
 def text_to_speech(text, gender='Male', language='en'):
     if language != 'en':
+        # no male voices for other languages except english
         translator = Translator()
         trans = translator.translate(text, src='en', dest=language)
         text = trans.text
